@@ -1,0 +1,50 @@
+--- 
+-
+  gather_facts: false
+  hosts: localhost
+  connection: local
+  tasks: 
+    - 
+      ec2: 
+        count_tag: 
+          Name: Demo
+        exact_count: 1
+        group: test
+        image: "ami-0e65ed16c9bf1abc7"
+        instance_tags: 
+          Name: Everbridge
+        instance_type: t2.micro
+        key_name: my-key
+        region: us-west-2
+        aws_access_key: "AKIA2B4AY4FWRTMAHJDW"
+        aws_secret_key: "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"
+        wait: true
+      name: "Provision an instance"
+      register: ec2
+
+- name: spin up the load balancer 
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: setup a simple load balancer
+      ec2_elb_lb:
+        name: aws-elb-demo
+        state: present
+        region: us-west-2
+        zones:
+          - us-west-2
+        listeners:
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: 80
+      register: aws-elb-demo
+
+    - name: add the webservers to the load balancer
+      local_action: ec2_elb
+      args:
+        instance_id: "{{ item.id }}"
+        ec2_elbs: aws-elb-demo
+        state: present
+        region: us-west-2
+      with_items: ec2.tagged_instances
