@@ -1,7 +1,7 @@
 ---
 -
   gather_facts: false
-  hosts: 168.149.141.20
+  hosts: myhost
   tasks:
     -
       ec2:
