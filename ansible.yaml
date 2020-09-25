@@ -1,20 +1,20 @@
 ---
 -
   gather_facts: false
-  hosts: localhost
+  hosts: 168.149.141.20
   tasks:
     -
       ec2:
         count_tag:
           Name: Demo
         exact_count: 1
-        group: sg-0ee2695de89fda376
+        group: "sg-0ee2695de89fda376"
         image: "ami-0e65ed16c9bf1abc7"
         instance_tags:
           Name: Everbridge
         instance_type: t2.micro
         key_name: my-key
-        region: us-west-2
+        region: us-west-1
         aws_access_key: "AKIA2B4AY4FWRTMAHJDW"
         aws_secret_key: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -38,7 +38,7 @@
       ec2_elb_lb:
         name: aws-elb-demo
         state: present
-        region: us-west-2
+        region: us-west-1
         zones:
           - us-west-2
         listeners:
@@ -53,6 +53,6 @@
         instance_id: "{{ item.id }}"
         ec2_elbs: aws-elb-demo
         state: present
-        region: us-west-2
+        region: us-west-1
       with_items: ec2.tagged_instances
 
