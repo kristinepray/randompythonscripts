@@ -1,0 +1,81 @@
+---
+- name: Install postgresql on the server
+  hosts: localhost
+  gather_facts: true
+  become: yes
+  tasks:
+    - name: install jdk
+      apt:
+       name: default-jre
+    - name: install jdk part 2
+      apt:
+       name: openjdk-11-jre-headless 
+    - name: run a shell script
+      command: sh /tmp/postgres.sh
+    - name: make a directory
+      file:
+        path: /etc/jira
+        state: directory
+        group: root
+        owner: root
+        mode: 0755
+    - name: make jira home dir
+      file:
+        path: /etc/jirasoftware-home
+        state: directory
+        group: root
+        owner: root
+        mode: 0755
+    - name: download core
+      become: yes
+      get_url:
+        url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-core-8.13.5.tar.gz
+        dest: /etc/jira
+        mode: 0755
+        group: root
+        owner: root
+    - name: extract core
+      unarchive:
+        src: /etc/jira/atlassian-jira-core-8.13.5.tar.gz
+        dest: /etc/jira
+    - name: Jira software
+      become: yes
+      get_url:
+        url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-8.13.5.tar.gz
+        dest: /etc/jira
+        mode: 0755
+        group: root
+        owner: root
+    - name: extract sw
+      unarchive:
+        src: /etc/jira/atlassian-jira-software-8.13.5.tar.gz
+        dest: /etc/jira
+    - name: Service Management
+      become: yes
+      get_url: 
+        url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-servicedesk-4.13.5.tar.gz
+        dest: /etc/jira
+        mode: 0755 
+        group: root
+        owner: root
+    - name: extract service desk
+      unarchive:
+        src: /etc/jira/atlassian-servicedesk-4.13.5.tar.gz
+        dest: /etc/jira
+    - name: run a shell command
+      shell: export JIRA_HOME=/etc/jirasoftware-home
+    - name: editing a file
+      copy:
+        dest: /etc/jira/atlassian-jira-software-8.13.5-standalone/atlassian-jira/WEB-INF/classes/jira-application.properties
+        content: |
+           jira.home=/etc/jirasoftware-home
+    - name: replace all the ports?
+      replace:
+        path: /etc/jira/atlassian-jira-sortware-8.13.5-standalone/conf/server.xml
+        regexp: "{{item}}"
+        replace: "8080"
+      with_items:
+      - '5050'
+      - '5005'
+
+

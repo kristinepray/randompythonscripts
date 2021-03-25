@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  tasks:
+  - name: create a dir
+    file:
+     path: /etc/jira
+     state: touch
+     owner: root
+     group: root
+     mode: 0755
