@@ -1,0 +1,60 @@
+---
+- hosts: masters
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: install yum utils
+      yum:
+       name: yum-utils
+       state: latest
+    - name: add docker yum repo
+      shell: |
+        sudo yum-config-manager \
+          --add-repo \
+          https://download.docker.com/linux/centos/docker-ce.repo
+    - name: install docker
+      yum: 
+        name: "{{ item }}"
+        state: latest
+      vars: 
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+      with_items: "{{ packages }}"
+    - name: enable docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: set setenforce 0
+      shell: |
+        setenforce 0 && \
+        sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+    - name: add kube repo
+      shell: |
+        cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+        enabled=1
+        gpgcheck=1
+        repo_gpgcheck=1
+        gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        exclude=kubelet kubeadm kubectl
+    - name: install kubernetes for master
+      yum:
+        name: "{{ item }}"
+        state: latest
+        disable_excludes: kubernetes
+      vars:
+        packages:
+          - kubelet
+          - kubectl
+          - kubeadm 
+      with_items: "{{ packages }}"
+    - name: start kubelet
+      service:
+        name: kubelet
+        enabled: yes
+        state: started 

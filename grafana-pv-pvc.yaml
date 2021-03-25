@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-pv
+  labels:
+    type: local
+spec:
+  storageClassName: monitoring
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/kubernetes-volumes/grafana"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+spec:
+  storageClassName: monitoring
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+	- The code above should create the pv/pvc needed for grafana.
+	- The claim name is grafana-pvc
+This is the section to modify in values.yaml:
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+type: pvc
+enabled: true
+storageClassName: monitoring
+accessModes:
+- ReadWriteOnce
+size: 2Gi
+# annotations: {}
+finalizers:
+- kubernetes.io/pvc-protection
+# subPath: ""
+existingClaim: grafana-pvc
