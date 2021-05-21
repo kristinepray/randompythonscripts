@@ -1,0 +1,50 @@
+An explanation of how the navigation app’s API works
+
+I have an nginx reverse proxy installed and setup so that http traffic normally accessible on port 80 now goes to port 3000. I wasnt sure what third level domain you wanted me to use.
+
+It presumes that the pbf is downloaded locally.
+
+People connect via 
+http://localhost:3000/ors/v2/directions
+http://localhost:3000/ors/v2/isochrones
+http://localhost:3000/ors/v2/matrix
+
+A more detailed diagram of how the new resources fit into the existing architecture
+
+How you would deploy it to a production environment
+
+I would write an ansible script to first do the usual system updates and upgrades. Then install the pre-reqs such as Java 1.8, Maven, then downloading the most recent pbf file. Probably using wget -c http:// etc.
+Similarly git clone the operrouteservice repo.
+After that, the directions say to copy openrouteservice/src/main/resources/app.config.sample to the same location but renaming it to app.config and editing some settings ie the location of the pbf file.
+Copying it is easy but editing the settings might be tricky in Ansible and might have to be hand coded.
+The directions suggest using:
+sudo chmod -R 777 [path to folder]
+To ensure accessibility but for me this seems risky and I would use 755 at the most, maybe 644. I guess this can be hashed out in testing.
+After that just go to the openrouteservice folder and run mvn package to build openrouteservice ready for tomcat deployment.
+The directions gave a couple of options for the next step and the recommended one is to sudo apt-get install tomcat8 which can be done in ansible.
+The next step says if you want to use Java heap size but thats only 128 megs and I am a bit worried about the system locking up under load.
+So in that instance I would opt for an alternative memory usage option. I honestly have no idea what to use.
+After that it asks me to copy the openrouteservice-xxx.war file found in the openrouteservice/target folder to the Tomcat webapps folder. Again, easily done in ansible.
+
+How you would test it:
+
+A way to test it is to make a crash n burn env. Set up the containers, repos, proxies, apache, and see if it works. Then if it works move it to prod. If not then start combing through logs and error reports to see what flopped and improve it until it works.
+
+What challenges you had, what you didn’t have time for, and what you would change
+
+There are a couple of things.
+It suggested using Java heap memory but I think that 128 megs is sparse under load.
+Additionally the directions suggested using folder perms of 777 and for me thats a security risk and would suggest using 755 or 644. Trial and error would tell.
+
+How does your infrastructure handle security?
+
+1. Run the containers as non-root user.
+2. Use a private registry
+
+How do the new resources scale?
+
+As its written right now it doesnt but to add scalability you can add docker swarm to the server which adds scalability along with several other features.
+
+Bonus: How might you add a layer of protection to require users to authenticate with the Rails app in order to use the navigation service?
+
+Actually adding docker swam adds security as well by adding TLS security between itself and all other nodes.
