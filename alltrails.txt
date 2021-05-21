@@ -11,8 +11,6 @@ http://localhost:3000/ors/v2/directions
 http://localhost:3000/ors/v2/isochrones
 http://localhost:3000/ors/v2/matrix
 
-A more detailed diagram of how the new resources fit into the existing architecture
-
 How you would deploy it to a production environment
 
 I would write an ansible script to first do the usual system updates and upgrades. Then install the pre-reqs such as Java 1.8, Maven, then downloading the most recent pbf file. Probably using wget -c http:// etc.
