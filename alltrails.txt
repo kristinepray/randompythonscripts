@@ -2,6 +2,8 @@ An explanation of how the navigation app’s API works
 
 I have an nginx reverse proxy installed and setup so that http traffic normally accessible on port 80 now goes to port 3000. I wasnt sure what third level domain you wanted me to use.
 
+I also put in a setting in the nginx config file that redirects traffic from the ruby crud server to local.
+
 It presumes that the pbf is downloaded locally.
 
 People connect via 
