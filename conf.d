@@ -59,14 +59,13 @@ http {
 
 
     server {
-        listen        3000;
+        listen        80;
         server_name   alltrails.com  www.alltrails.com;
 
         access_log   /var/log/nginx.access_log  main;
 
         location / {
-            proxy_pass         http://127.0.0.1/;
-            proxy_redirect     off;
+            proxy_pass         http://127.0.0.1:8000;
 
             proxy_set_header   Host             $host;
             proxy_set_header   X-Real-IP        $remote_addr;
