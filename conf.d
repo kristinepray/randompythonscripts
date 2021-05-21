@@ -70,7 +70,19 @@ http {
             proxy_set_header   Host             $host;
             proxy_set_header   X-Real-IP        $remote_addr;
             proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-
+            
+            listen 80 default_server;
+            listen [::]:80 default_server;
+        
+            root /var/www/rails_application;
+        
+            index index.html index.htm index.nginx-debian.html;
+        
+            server_name _;
+        
+            passenger_enabled on;
+            passenger_ruby /home/ubuntu/.rvm/gems/ruby-2.6.5/wrappers/ruby;
+            
             client_max_body_size       10m;
             client_body_buffer_size    128k;
 
